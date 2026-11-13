@@ -1,0 +1,17 @@
+{
+  "kind": "SankeyChart",
+  "spec": {
+    "calculation": "last",
+    "levels": ["source_namespace", "destination_namespace"],
+    "format": {
+      "unit": "decimal",
+      "decimalPlaces": 2
+    },
+    "orientation": "horizontal",
+    "nodeAlign": "justify",
+    "minValue": 0,
+    "maxLinks": 50,
+    "colorBy": "source",
+    "linkOpacity": 0.4
+  }
+}
