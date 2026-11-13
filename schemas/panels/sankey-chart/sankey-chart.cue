@@ -23,7 +23,7 @@ spec: close({
 	minValue?: number & >=0
 	// Keep only the largest N links. Unset: no limit.
 	maxLinks?: int & >=1
-	// source: every node its own palette colour, links take their source's. level: one colour per column.
+	// source: every node its own palette color, links take their source's. level: one color per column.
 	colorBy?: "source" | "level"
 	// Link opacity. Default 0.4.
 	linkOpacity?: number & >=0 & <=1

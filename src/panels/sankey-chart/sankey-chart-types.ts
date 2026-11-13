@@ -13,7 +13,7 @@ export type SankeyChartEditorProps = OptionsEditorProps<SankeyChartOptions>;
 
 export type Orientation = "horizontal" | "vertical";
 export type NodeAlign = "justify" | "left" | "right";
-/** `source`: every node its own palette colour, links take their source's. `level`: one colour per column. */
+/** `source`: every node its own palette color, links take their source's. `level`: one color per column. */
 export type ColorBy = "source" | "level";
 
 export interface SankeyChartOptions {
@@ -27,7 +27,7 @@ export interface SankeyChartOptions {
   format?: FormatOptions;
   /** Flow direction: left to right, or top to bottom. Default `horizontal`. */
   orientation?: Orientation;
-  /** Where nodes without outgoing links sit. Default `justify`. */
+  /** Where nodes go when links on one side are hidden (`justify`: nodes without outgoing links in the last column). Default `justify`. */
   nodeAlign?: NodeAlign;
   /** Links below this value are hidden. Default 0 (only empty links are hidden). */
   minValue?: number;

@@ -20,13 +20,15 @@ All notable changes to this project are documented here. The format follows
   their total.
 - Series without one of the level labels, and negative series, are counted in the note instead of
   being dropped silently. An empty label value is shown as `(none)`.
-- Horizontal or vertical layout, node alignment (`justify`, `left`, `right`), colour by source node
+- Horizontal or vertical layout, node alignment (`justify`, `left`, `right`), color by source node
   or by column from the Perses chart palette, link opacity, formatted tooltips, light and dark
   themes.
 - Panel settings editor and CUE schema.
+- In the vertical layout, each node label is cut to the width of its node so labels do not overlap.
 - `Containerfile` for a plugin-only OCI image, for use as a Kubernetes image volume.
+- `dev/` stack: Perses, Prometheus and made-up request flows, with a demo dashboard.
 
-Built against the Perses v0.54.0 libraries.
+Built against the Perses v0.54.0 libraries, tested with Perses v0.55.1.
 
 [Unreleased]: https://github.com/astrona-io/perses-plugin-sankey/compare/v0.1.0...HEAD
 [0.1.0]: https://github.com/astrona-io/perses-plugin-sankey/releases/tag/v0.1.0

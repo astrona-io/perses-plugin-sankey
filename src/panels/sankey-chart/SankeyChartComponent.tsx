@@ -40,7 +40,7 @@ function escapeHtml(s: string): string {
   return s.replace(/[&<>"']/g, (c) => `&#${c.charCodeAt(0)};`);
 }
 
-/** Stable palette index for a name, so a namespace keeps its colour across refreshes and columns. */
+/** Stable palette index for a name, so a namespace keeps its color across refreshes and columns. */
 function hashIndex(name: string, size: number): number {
   let h = 0;
   for (let i = 0; i < name.length; i++) h = (h * 31 + name.charCodeAt(i)) | 0;
@@ -126,6 +126,45 @@ export function SankeyChartComponent(
       ),
     );
 
+    // Vertical: labels sit side by side along a row of nodes, so each gets the width of its own
+    // node (plus the gap) instead of overlapping its neighbors. A node is as wide as the larger of
+    // its incoming and outgoing totals, on the scale of the fullest row, as ECharts lays it out.
+    const nodeValue = new Map<string, number>();
+    const inOut = new Map<string, [number, number]>();
+    for (const l of graph.links) {
+      const s = inOut.get(l.source) ?? [0, 0];
+      s[1] += l.value;
+      inOut.set(l.source, s);
+      const t = inOut.get(l.target) ?? [0, 0];
+      t[0] += l.value;
+      inOut.set(l.target, t);
+    }
+    inOut.forEach(([i, o], id) => nodeValue.set(id, Math.max(i, o)));
+    const rows = new Map<number, { sum: number; count: number }>();
+    for (const n of graph.nodes) {
+      const r = rows.get(n.level) ?? { sum: 0, count: 0 };
+      r.sum += nodeValue.get(n.id) ?? 0;
+      r.count += 1;
+      rows.set(n.level, r);
+    }
+    let scale = Infinity;
+    rows.forEach(({ sum, count }) => {
+      if (sum > 0)
+        scale = Math.min(
+          scale,
+          (width - 2 * MARGIN - (count - 1) * NODE_GAP) / sum,
+        );
+    });
+    const verticalLabelWidth = (n: SankeyNode): number =>
+      Math.max(
+        16,
+        Math.floor(
+          (Number.isFinite(scale) ? (nodeValue.get(n.id) ?? 0) * scale : 0) +
+            NODE_GAP -
+            2,
+        ),
+      );
+
     const colorOf = (n: SankeyNode): string => {
       const size = palette.length || 1;
       const index =
@@ -184,7 +223,9 @@ export function SankeyChartComponent(
             name: n.name,
             level: n.level,
             itemStyle: { color: colorOf(n), borderWidth: 0 },
-            label: { position: labelPosition(n) },
+            label: horizontal
+              ? { position: labelPosition(n) }
+              : { position: labelPosition(n), width: verticalLabelWidth(n) },
           })) as never,
           links: graph.links.map((l) => ({ ...l })),
           lineStyle: { color: "source", opacity: linkOpacity, curveness: 0.5 },
