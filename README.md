@@ -8,6 +8,11 @@ values. Typical uses:
 - a cost breakdown, cluster → namespace → workload
 - request routing, for example ingress → service → backend
 
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/images/overview-dark.png">
+  <img alt="Two Sankey panels: requests between services, and edge requests split by region, ingress, service and status class" src="docs/images/overview-light.png">
+</picture>
+
 ```promql
 sum by (source_namespace, destination_namespace) (rate(hubble_flows_processed_total[5m]))
 ```
@@ -16,7 +21,7 @@ sum by (source_namespace, destination_namespace) (rate(hubble_flows_processed_to
 
 | Plugin | Perses | Status |
 | --- | --- | --- |
-| 0.1.x | v0.54.x | Built against v0.54.0 |
+| 0.1.x | v0.55.x | Tested with v0.55.1 |
 
 The plugin is built against `@perses-dev/*` 0.54 and `percli` v0.54.0. Other Perses minor versions may
 work but are not tested; see [Why ECharts](#why-echarts) for the part most likely to break.
@@ -36,12 +41,24 @@ work but are not tested; see [Why ECharts](#why-echarts) for the part most likel
 - A series without one of the level labels is not drawn, and the note says how many there were and
   which labels were missing. A label that is present but empty is shown as `(none)`. Negative values
   cannot be drawn in a Sankey; they are counted in the note too.
-- Nodes are coloured from the Perses chart palette: by node (`colorBy: source`; the same name gets the
-  same colour in every column and across refreshes, and each link takes its source node's colour) or
+- Nodes are colored from the Perses chart palette: by node (`colorBy: source`; the same name gets the
+  same color in every column and across refreshes, and each link takes its source node's color) or
   by column (`colorBy: level`).
 - Hovering a node or link highlights everything connected to it. Tooltips show the column label, the
   name and the formatted value.
-- Horizontal (left to right) or vertical (top to bottom) layout. Light and dark themes.
+
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="docs/images/hover-dark.png">
+    <img alt="Hovering the api-gateway to search link highlights it and shows its value" src="docs/images/hover-light.png">
+  </picture>
+- Horizontal (left to right) or vertical (top to bottom) layout. In the vertical layout each label
+  is cut to the width of its node, with an ellipsis, so neighboring labels do not overlap; the
+  tooltip has the full name. Light and dark themes.
+
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="docs/images/vertical-dark.png">
+    <img alt="The service flows drawn top to bottom, with links below 50 requests per second hidden" src="docs/images/vertical-light.png">
+  </picture>
 - Without data the panel shows Perses' usual "No data" message.
 
 ### Examples
@@ -144,6 +161,21 @@ Perses' `EChart` component. That component uses Perses' own trimmed `echarts/cor
 not register the `sankey` series. This means the plugin depends on Perses continuing to share the full
 `echarts` package. Re-test it on every Perses upgrade.
 
+## Try it locally
+
+`dev/` runs Perses with the plugin, a Prometheus, and made-up request rates between services
+(service to service, and edge traffic by region, ingress, service and status class) to draw. The
+screenshots above come from it. It needs `podman compose` or `docker compose`.
+
+```bash
+npm ci && npm run build && percli plugin build
+cp Sankey-*.tar.gz dev/archive/
+podman compose -f dev/compose.yaml up -d    # PERSES_PORT=18080 to move it off 8080
+```
+
+Open <http://localhost:8080/projects/demo/dashboards/sankey>. Data appears after Prometheus' first
+scrape, within a minute. `podman compose -f dev/compose.yaml down` removes it again.
+
 ## Build
 
 You need Node 22 or later, [`percli`](https://github.com/perses/perses/releases/tag/v0.54.0) v0.54.0
@@ -225,7 +257,7 @@ Copy the archive into the directory of bundled plugins. No config change is need
 directory is in the default `archive_paths`:
 
 ```dockerfile
-FROM persesdev/perses:v0.54.0
+FROM persesdev/perses:v0.55.1
 COPY Sankey-0.1.0.tar.gz /etc/perses/plugins-archive/
 ```
 

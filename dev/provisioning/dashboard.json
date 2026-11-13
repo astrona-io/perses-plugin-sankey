@@ -1,0 +1,159 @@
+{
+  "kind": "Dashboard",
+  "metadata": {
+    "name": "sankey",
+    "project": "demo"
+  },
+  "spec": {
+    "display": {
+      "name": "Sankey"
+    },
+    "duration": "15m",
+    "refreshInterval": "0s",
+    "variables": [],
+    "panels": {
+      "services": {
+        "kind": "Panel",
+        "spec": {
+          "display": {
+            "name": "Requests between services",
+            "description": "Requests per second from each service to the services it calls. Only the 20 largest flows are drawn."
+          },
+          "plugin": {
+            "kind": "SankeyChart",
+            "spec": {
+              "calculation": "last",
+              "levels": ["source_service", "destination_service"],
+              "format": {
+                "unit": "requests/sec",
+                "decimalPlaces": 1
+              },
+              "maxLinks": 20,
+              "colorBy": "source",
+              "linkOpacity": 0.4
+            }
+          },
+          "queries": [
+            {
+              "kind": "TimeSeriesQuery",
+              "spec": {
+                "plugin": {
+                  "kind": "PrometheusTimeSeriesQuery",
+                  "spec": {
+                    "query": "sum by (source_service, destination_service) (demo_service_requests_per_second)"
+                  }
+                }
+              }
+            }
+          ]
+        }
+      },
+      "edge": {
+        "kind": "Panel",
+        "spec": {
+          "display": {
+            "name": "Edge requests by region, ingress, service and status",
+            "description": "Each column is a label: region, ingress, service, status class."
+          },
+          "plugin": {
+            "kind": "SankeyChart",
+            "spec": {
+              "calculation": "last",
+              "levels": ["region", "ingress", "service", "code_class"],
+              "format": {
+                "unit": "requests/sec",
+                "decimalPlaces": 1
+              },
+              "colorBy": "level",
+              "linkOpacity": 0.35
+            }
+          },
+          "queries": [
+            {
+              "kind": "TimeSeriesQuery",
+              "spec": {
+                "plugin": {
+                  "kind": "PrometheusTimeSeriesQuery",
+                  "spec": {
+                    "query": "sum by (region, ingress, service, code_class) (demo_edge_requests_per_second)"
+                  }
+                }
+              }
+            }
+          ]
+        }
+      },
+      "vertical": {
+        "kind": "Panel",
+        "spec": {
+          "display": {
+            "name": "Service calls, vertical, at least 50 req/s",
+            "description": "The same flows top to bottom, with minValue 50."
+          },
+          "plugin": {
+            "kind": "SankeyChart",
+            "spec": {
+              "calculation": "mean",
+              "levels": ["source_service", "destination_service"],
+              "format": {
+                "unit": "requests/sec",
+                "decimalPlaces": 0
+              },
+              "orientation": "vertical",
+              "minValue": 50
+            }
+          },
+          "queries": [
+            {
+              "kind": "TimeSeriesQuery",
+              "spec": {
+                "plugin": {
+                  "kind": "PrometheusTimeSeriesQuery",
+                  "spec": {
+                    "query": "sum by (source_service, destination_service) (demo_service_requests_per_second)"
+                  }
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    "layouts": [
+      {
+        "kind": "Grid",
+        "spec": {
+          "items": [
+            {
+              "x": 0,
+              "y": 0,
+              "width": 12,
+              "height": 12,
+              "content": {
+                "$ref": "#/spec/panels/services"
+              }
+            },
+            {
+              "x": 12,
+              "y": 0,
+              "width": 12,
+              "height": 12,
+              "content": {
+                "$ref": "#/spec/panels/edge"
+              }
+            },
+            {
+              "x": 0,
+              "y": 12,
+              "width": 24,
+              "height": 12,
+              "content": {
+                "$ref": "#/spec/panels/vertical"
+              }
+            }
+          ]
+        }
+      }
+    ]
+  }
+}

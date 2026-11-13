@@ -240,10 +240,10 @@ export function SankeyChartSettingsEditor(
             }
           />
         </OptionsEditorGroup>
-        <OptionsEditorGroup title="Colour">
+        <OptionsEditorGroup title="Color">
           <OptionsEditorControl
-            label="Colour by"
-            description="Source: each node its own colour, links take their source's. Level: one colour per column"
+            label="Color by"
+            description="Source: each node its own color, links take their source's. Level: one color per column"
             control={
               <TextField
                 select
